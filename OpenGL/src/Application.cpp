@@ -1,5 +1,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -14,6 +16,9 @@
 #include "Shader.h"
 #include "Texture.h"
 
+const unsigned int WIDTH = 640;
+const unsigned int HEIGHT = 480;
+
 int main(void)
 {
     GLFWwindow* window;
@@ -27,7 +32,7 @@ int main(void)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(WIDTH, HEIGHT, "Hello World", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -52,10 +57,10 @@ int main(void)
 
     /* Basic triangle */ 
     float positions[] = {
-        -0.5f, -0.5f, 0.0f, 0.0f,
-         0.5f, -0.5f, 1.0f, 0.0f,
-         0.5f,  0.5f, 1.0f, 1.0f,
-        -0.5f,  0.5f, 0.0f, 1.0f
+        100.0f, 100.0f, 0.0f, 0.0f,
+        200.0f, 100.0f, 1.0f, 0.0f,
+        200.0f, 200.0f, 1.0f, 1.0f,
+        100.0f, 200.0f, 0.0f, 1.0f
     };
 
     unsigned int indices[] = {
@@ -74,9 +79,17 @@ int main(void)
     /* Index buffer object */
     IndexBuffer ib(indices, 6);
 
+    /* Projection matirx */
+    /* First 4 variables need to represent your aspect ratio */
+    /* In this case:  |-2.0 - 2.0| / |-1.5 - 1.5| = 4/3 */
+    glm::mat4 proj = glm::ortho(0.0f, (float)WIDTH, 0.0f, (float)HEIGHT, -1.0f, 1.0f);
+    glm::vec4 vertex_pos(100.0f, 100.0f, 0.0f, 1.0f);
+    glm::vec4 result = proj * vertex_pos;
+
     Shader shader("res/shaders/Basic.shader");
     shader.Bind();
     shader.SetUniform4f("u_Color", 0.2f, 0.3f, 0.8f, 1.0f);
+    shader.SetUniform4f("u_MVP", proj);
 
     Texture texture("res/textures/dupa.png");
     texture.Bind(0);
